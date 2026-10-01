@@ -12,8 +12,14 @@ const socketOrigin = () => {
   }
 };
 
-/** Real-time channel used only for notification delivery. */
+/**
+ * Real-time channel used only for notification delivery.
+ * Returns null when realtime is switched off (VITE_SOCKET_URL=off) — needed on serverless
+ * hosts like Vercel, which can't hold a WebSocket, so the client would otherwise retry
+ * forever against an endpoint that will never answer. Notifications still arrive on refetch.
+ */
 export function connectSocket() {
+  if (import.meta.env.VITE_SOCKET_URL === 'off') return null;
   if (socket) return socket;
   socket = io(socketOrigin(), {
     transports: ['websocket', 'polling'],

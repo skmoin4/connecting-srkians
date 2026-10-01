@@ -1,7 +1,7 @@
 {
   "name": "srkians",
   "private": true,
-  "description": "SRKians — City Connect & Fan Club Platform (MERN)",
+  "description": "SRKians \u2014 City Connect & Fan Club Platform (MERN)",
   "scripts": {
     "install:all": "npm --prefix server install && npm --prefix client install",
     "dev:api": "npm --prefix server run dev",
@@ -11,5 +11,8 @@
     "test": "npm --prefix server test",
     "build": "npm --prefix client run build",
     "start": "npm --prefix server start"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
