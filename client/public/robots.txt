@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /fan-club/
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /notifications
+
+Sitemap: /sitemap.xml

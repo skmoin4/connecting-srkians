@@ -1,0 +1,15 @@
+{
+  "name": "srkians",
+  "private": true,
+  "description": "SRKians — City Connect & Fan Club Platform (MERN)",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "dev:api": "npm --prefix server run dev",
+    "dev:api:memory": "npm --prefix server run dev:memory",
+    "dev:web": "npm --prefix client run dev",
+    "seed": "npm --prefix server run seed",
+    "test": "npm --prefix server test",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix server start"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "SRKians — City Connect & Fan Club Network",
+  "short_name": "SRKians",
+  "description": "Find your city. Find your fan club. Find your SRKian family.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0b",
+  "theme_color": "#0a0a0b",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
