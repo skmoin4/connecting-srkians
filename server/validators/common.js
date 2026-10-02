@@ -57,7 +57,7 @@ export const imageRef = z
   .object({
     url: z.string().trim().max(500).refine((v) => /^https?:\/\//.test(v), 'Invalid image URL'),
     publicId: z.string().trim().max(300).optional(),
-    provider: z.enum(['cloudinary', 'local', 'external']).optional(),
+    provider: z.enum(['cloudinary', 'local', 'external', 'db']).optional(),
   })
   .nullable()
   .optional();

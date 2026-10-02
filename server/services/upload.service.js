@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { v2 as cloudinary } from 'cloudinary';
 import { env, isCloudinaryConfigured } from '../config/env.js';
+import { Upload } from '../models/index.js';
 import { ApiError } from '../utils/ApiError.js';
 import { randomToken } from '../utils/helpers.js';
 
@@ -24,11 +25,15 @@ const ensureCloudinary = () => {
 
 const EXT = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif' };
 
+/** Database-backed images are capped well below the 5MB upload limit — these bytes live in Mongo
+ *  and are re-read on every view, so a full-size photo would be expensive twice over. */
+const DB_MAX_SIZE = 600 * 1024;
+
 /**
  * Uploads an already-validated image buffer. Uses Cloudinary when configured; in development it
  * falls back to local disk (served from /uploads). Production without Cloudinary is refused.
  */
-export async function uploadImageBuffer(file, folder = 'misc') {
+export async function uploadImageBuffer(file, folder = 'misc', uploadedBy) {
   if (isCloudinaryConfigured()) {
     ensureCloudinary();
     const result = await new Promise((resolve, reject) => {
@@ -41,8 +46,20 @@ export async function uploadImageBuffer(file, folder = 'misc') {
     return { url: result.secure_url, publicId: result.public_id, provider: 'cloudinary' };
   }
 
+  // Serverless hosts have a read-only filesystem, so the disk fallback below cannot run there.
+  // Keep the image in Mongo instead rather than refusing the upload outright.
   if (!env.allowLocalUploads) {
-    throw ApiError.unavailable('Image uploads are not configured. Set CLOUDINARY_* environment variables.');
+    if (file.size > DB_MAX_SIZE) {
+      throw ApiError.badRequest(`Image must be ${Math.round(DB_MAX_SIZE / 1024)}KB or smaller until an image host is configured.`);
+    }
+    const doc = await Upload.create({
+      data: file.buffer,
+      contentType: file.mimetype,
+      size: file.size,
+      folder,
+      uploadedBy: uploadedBy || undefined,
+    });
+    return { url: `${env.serverUrl}/api/v1/uploads/${doc._id}`, publicId: String(doc._id), provider: 'db' };
   }
 
   const dir = path.join(LOCAL_UPLOAD_DIR, folder);
@@ -58,6 +75,8 @@ export async function deleteImage(image) {
     if (image.provider === 'cloudinary' && isCloudinaryConfigured()) {
       ensureCloudinary();
       await cloudinary.uploader.destroy(image.publicId);
+    } else if (image.provider === 'db') {
+      await Upload.deleteOne({ _id: image.publicId });
     } else if (image.provider === 'local') {
       const target = path.resolve(LOCAL_UPLOAD_DIR, image.publicId);
       if (target.startsWith(LOCAL_UPLOAD_DIR)) await fs.unlink(target);
@@ -65,4 +84,11 @@ export async function deleteImage(image) {
   } catch {
     /* asset cleanup is best-effort */
   }
+}
+
+/** Streams a database-backed image. Cached hard: the bytes never change once written. */
+export async function getStoredImage(id) {
+  const doc = await Upload.findById(id).select('+data contentType size').lean();
+  if (!doc) throw ApiError.notFound('Image not found');
+  return doc;
 }

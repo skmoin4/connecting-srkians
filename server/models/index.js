@@ -22,4 +22,5 @@ export { Referral } from './Referral.js';
 export { AdminCollaboration } from './AdminCollaboration.js';
 export { AuditLog } from './AuditLog.js';
 export { SiteSetting, DEFAULT_DISCLAIMER } from './SiteSetting.js';
+export { Upload } from './Upload.js';
 export { RefreshToken } from './RefreshToken.js';

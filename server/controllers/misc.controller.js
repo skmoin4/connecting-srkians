@@ -4,7 +4,7 @@ import * as reportService from '../services/report.service.js';
 import * as networkService from '../services/network.service.js';
 import * as community from '../services/community.service.js';
 import { getSettingsCached, publicSettings } from '../services/settings.service.js';
-import { uploadImageBuffer } from '../services/upload.service.js';
+import { getStoredImage, uploadImageBuffer } from '../services/upload.service.js';
 import { trackReferralClick } from '../services/referral.service.js';
 import { Badge, City, Event, FanClub, FDFS, Movie } from '../models/index.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
@@ -101,8 +101,16 @@ export const referralClick = asyncHandler(async (req, res) => {
 const FOLDERS = ['avatars', 'fan-clubs', 'events', 'fdfs', 'cities', 'branding', 'verification'];
 export const upload = asyncHandler(async (req, res) => {
   const folder = FOLDERS.includes(req.query.folder) ? req.query.folder : 'misc';
-  const image = await uploadImageBuffer(req.file, folder);
+  const image = await uploadImageBuffer(req.file, folder, req.user._id);
   created(res, { image }, 'Image uploaded');
+});
+
+/** Serves an image held in the database (the fallback when no object store is configured). */
+export const servedImage = asyncHandler(async (req, res) => {
+  const doc = await getStoredImage(req.params.id);
+  res.set('Content-Type', doc.contentType);
+  res.set('Cache-Control', 'public, max-age=31536000, immutable'); // bytes never change once written
+  res.send(doc.data.buffer ? Buffer.from(doc.data.buffer) : doc.data);
 });
 
 // ---------------- SEO: sitemap ----------------

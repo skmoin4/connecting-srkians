@@ -62,5 +62,7 @@ api.post('/referrals/click', writeLimiter, misc.referralClick);
 
 // Uploads (authenticated; validated MIME/extension/size/magic bytes)
 api.post('/uploads/image', authenticate, writeLimiter, uploadImage('image'), misc.upload);
+// Public, because these URLs are stored on clubs and events and rendered like any other image.
+api.get('/uploads/:id', misc.servedImage);
 
 export default api;

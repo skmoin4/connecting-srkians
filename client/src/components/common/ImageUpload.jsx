@@ -7,6 +7,37 @@ import { cn } from '../../utils/format.js';
 
 const MAX = 5 * 1024 * 1024;
 const TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
+const MAX_EDGE = 1280;
+
+/**
+ * Shrinks an oversized photo in the browser before it is sent.
+ *
+ * Phone cameras produce several megabytes for what ends up as a 160px logo, and without an object
+ * store those bytes are kept in the database, so the saving matters twice. The type is preserved
+ * because PNG transparency and GIF animation both die in a JPEG, and GIFs are skipped entirely —
+ * a canvas would flatten them to the first frame.
+ */
+async function downscale(file) {
+  if (file.type === 'image/gif' || typeof createImageBitmap !== 'function') return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+    if (scale === 1 && file.size <= 600 * 1024) return file;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, file.type, 0.85));
+    if (!blob || blob.size >= file.size) return file; // re-encoding made it worse
+    return new File([blob], `image.${EXT[file.type] || 'jpg'}`, { type: file.type });
+  } catch {
+    return file; // an unreadable image is the server's call to reject, not ours
+  }
+}
 
 /**
  * Uploads to /uploads/image (Cloudinary in production) and returns { url, publicId, provider }.
@@ -30,7 +61,7 @@ export function ImageUpload({ value, onChange, folder = 'misc', label = 'Image',
     if (file.size > MAX) return toast.error('Image must be 5MB or smaller.');
     setBusy(true);
     try {
-      const { image } = await uploadApi.image(file, folder);
+      const { image } = await uploadApi.image(await downscale(file), folder);
       onChange(image);
     } catch (err) {
       toast.error(errorMessage(err, 'Upload failed'));

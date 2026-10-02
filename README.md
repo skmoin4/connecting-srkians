@@ -141,7 +141,11 @@ MongoDB Atlas: create a cluster, add a database user, allow your server's IP, an
 
 ## External services (Cloudinary, SMTP, Firebase)
 
-> **Without Cloudinary, production refuses uploads.** Every image field also accepts a link
+> **Without Cloudinary, uploads fall back to the database** (`provider: 'db'`, served from
+> `/api/v1/uploads/:id` and cached immutably), capped at 600KB per image — the browser downscales
+> anything larger to 1280px first. It works, but every view costs a function invocation and the
+> bytes sit in Mongo, so configure Cloudinary before the gallery grows. Every image field also
+> accepts a link
 > ("or paste a link"), stored as `provider: 'external'` — useful for branding images committed to
 > `client/public/images/`, which Vercel serves at `https://<domain>/images/<file>`. That covers the
 > hero, social share image and default covers, but not fan club logos or event covers: club admins

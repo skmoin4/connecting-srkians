@@ -22,7 +22,7 @@ export default function FanClubRegister() {
   const { user, isAuthenticated, refreshUser } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
-  const [images, setImages] = useState({ logo: null, coverImage: null, verificationProof: null });
+  const [images, setImages] = useState({ logo: null });
   const [visibility, setVisibility] = useState({ showInstagram: true, showWhatsApp: false, showPhone: false, showWhatsAppGroup: false });
   const [membershipType, setMembershipType] = useState('OPEN');
 
@@ -102,10 +102,16 @@ export default function FanClubRegister() {
             <h2 id="fs-identity" className="eyebrow mb-2">Club identity</h2>
             <Input label="Fan club name" required placeholder="e.g. SRK Aryan FC Nashik" error={errors.name?.message} {...register('name')} />
             <Textarea label="Description" required rows={5} placeholder="Who you are, what you do, how long you've been running…" error={errors.description?.message} {...register('description')} />
-            <div className="grid gap-5 sm:grid-cols-2">
-              <ImageUpload label="Logo" value={images.logo} onChange={(v) => setImages((s) => ({ ...s, logo: v }))} folder="fan-clubs" aspect="aspect-square max-w-40" rounded="rounded-full" />
-              <ImageUpload label="Cover image" value={images.coverImage} onChange={(v) => setImages((s) => ({ ...s, coverImage: v }))} folder="fan-clubs" />
-            </div>
+            {/* Cover image lives in the club dashboard instead: one picture is enough to get
+                verified, and asking for three at sign-up was the main thing people dropped out on. */}
+            <ImageUpload
+              label="Logo"
+              value={images.logo}
+              onChange={(v) => setImages((s) => ({ ...s, logo: v }))}
+              folder="fan-clubs"
+              aspect="aspect-square max-w-40"
+              rounded="rounded-full"
+            />
           </fieldset>
 
           <fieldset className="card min-w-0 space-y-5 p-5 sm:p-6" aria-labelledby="fs-location">
@@ -147,13 +153,6 @@ export default function FanClubRegister() {
               <Input label="Approximate members (optional)" type="number" min="0" {...register('approxMemberCount')} />
               <Select label="Membership" value={membershipType} onChange={(e) => setMembershipType(e.target.value)} options={Object.entries(MEMBERSHIP_TYPES).map(([value, label]) => ({ value, label }))} />
             </div>
-            <ImageUpload
-              label="Verification proof (optional)"
-              value={images.verificationProof}
-              onChange={(v) => setImages((s) => ({ ...s, verificationProof: v }))}
-              folder="verification"
-              hint="e.g. a screenshot of your Instagram page insights or past event photos. Visible only to moderators."
-            />
             <Textarea label="Additional information (optional)" rows={3} {...register('additionalInfo')} />
           </fieldset>
         </div>
