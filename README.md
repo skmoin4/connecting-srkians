@@ -158,6 +158,15 @@ The app runs without any of these. It never pretends a service is connected when
 - Roles, permissions, 7 default badges, site settings
 - **SRK Aryan FC Nashik** (approved, featured). Instagram `@srkaryanfc_nashik`, WhatsApp `7020318629`. The WhatsApp number is **hidden by default** (`showWhatsApp: false`); the club admin can turn it on in Fan club dashboard → Settings. Launch data lives in `server/seed/initial-data.js`, not in components.
 - Clearly labelled **demo** data: a `[Demo]` fan meet, a demo **KING FDFS in Nashik** (theatre/show time left "To Be Announced"; the release date is the placeholder from the launch brief, so confirm it before publicising), and a `[Demo]` announcement. Demo records have `isDemo: true` and show a "Demo" badge.
+- Fandom **moments** (2 November, DDLJ and Pathaan anniversaries) and their two commemorative badges.
+
+### All of India's cities
+
+`npm run seed:cities` adds **36 states and union territories and ~478 major cities**, so people can find their own city at sign-up instead of hitting a dead end — registration requires an existing city, and only a super admin can create one.
+
+Run it once after `npm run seed`. It is **idempotent and additive**: it only inserts, never renames, disables or deletes, so re-running it after editing `server/seed/india-cities.js` just adds the new names and leaves everything an admin has since changed alone.
+
+City slugs are globally unique but several Indian city names are not (Bilaspur, Udaipur, Aurangabad, Hamirpur, Pratapgarh). Whichever is imported first keeps the plain slug; later ones are qualified by state, e.g. `/cities/udaipur` and `/cities/udaipur-tripura`.
 
 | Role | Email | Password |
 |---|---|---|

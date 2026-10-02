@@ -12,6 +12,7 @@
     "dev:api:memory": "npm run dev:memory -w server",
     "dev:web": "npm run dev -w client",
     "seed": "npm run seed -w server",
+    "seed:cities": "npm run seed:cities -w server",
     "test": "npm test -w server",
     "build": "npm run build -w client",
     "start": "npm start -w server"
