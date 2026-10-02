@@ -110,6 +110,11 @@ export const INDIA_LOCATIONS = [
       'Ahmednagar', 'Chandrapur', 'Parbhani', 'Ichalkaranji', 'Jalna', 'Bhiwandi', 'Panvel',
       'Satara', 'Beed', 'Yavatmal', 'Dharashiv', 'Nandurbar', 'Wardha', 'Ratnagiri',
       'Mira-Bhayandar', 'Ulhasnagar', 'Malegaon', 'Gondia', 'Baramati',
+      // Remaining district headquarters, so no district of the launch state is unreachable.
+      'Hingoli', 'Washim', 'Buldhana', 'Bhandara', 'Gadchiroli', 'Palghar', 'Alibag',
+      'Sawantwadi',
+      'Shirdi', 'Pandharpur', 'Karad', 'Chiplun', 'Lonavla', 'Udgir', 'Achalpur', 'Barshi',
+      'Sangamner', 'Shrirampur', 'Amalner', 'Chalisgaon', 'Ambajogai', 'Nandgaon',
     ],
   },
   { state: 'Manipur', cities: ['Imphal', 'Thoubal'] },

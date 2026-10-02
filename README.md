@@ -162,7 +162,7 @@ The app runs without any of these. It never pretends a service is connected when
 
 ### All of India's cities
 
-`npm run seed:cities` adds **36 states and union territories and ~478 major cities**, so people can find their own city at sign-up instead of hitting a dead end — registration requires an existing city, and only a super admin can create one.
+`npm run seed:cities` adds **36 states and union territories and ~500 major cities**, so people can find their own city at sign-up instead of hitting a dead end — registration requires an existing city, and only a super admin can create one.
 
 Run it once after `npm run seed`. It is **idempotent and additive**: it only inserts, never renames, disables or deletes, so re-running it after editing `server/seed/india-cities.js` just adds the new names and leaves everything an admin has since changed alone.
 
