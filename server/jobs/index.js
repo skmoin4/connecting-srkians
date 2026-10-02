@@ -1,5 +1,6 @@
 import { Event, EventAttendee, FDFS, FDFSParticipant } from '../models/index.js';
 import { notifyUsers } from '../services/notification.service.js';
+import { syncMovieStatuses } from '../services/movie.service.js';
 import { logger } from '../utils/logger.js';
 
 const timers = [];
@@ -22,6 +23,8 @@ export async function syncStatuses() {
     await Model.updateMany({ status: 'UPCOMING', [field]: { $gte: todayStart, $lt: tomorrowStart } }, { status: 'ONGOING' });
     await Model.updateMany({ status: { $in: ['UPCOMING', 'ONGOING'] }, [field]: { $lt: todayStart } }, { status: 'COMPLETED' });
   }
+
+  await syncMovieStatuses();
 }
 
 /** "Your event starts tomorrow" reminders — sent once per listing. */

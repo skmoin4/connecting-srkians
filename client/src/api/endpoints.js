@@ -113,10 +113,31 @@ export const communityApi = {
   search: (params) => get('/search', params),
   suggestions: (q) => get('/search/suggestions', { q }),
   leaderboard: (params) => get('/leaderboard', params),
+  cityRace: (params) => get('/leaderboard/cities', params),
   badges: () => get('/badges'),
   settings: () => get('/settings/public'),
   report: (b) => post('/reports', b),
   referralClick: (code) => post('/referrals/click', { code }),
+};
+
+export const movieApi = {
+  list: (params) => get('/movies', params),
+  countdown: () => get('/movies/countdown'),
+  get: (slug) => get(`/movies/${slug}`),
+  create: (b) => post('/movies', b),
+  update: (id, b) => patch(`/movies/${id}`, b),
+  remove: (id) => del(`/movies/${id}`),
+  inviteOrganisers: (id) => post(`/movies/${id}/invite-organisers`),
+  createFdfs: (b) => post('/movies/fdfs', b),
+};
+
+export const momentApi = {
+  list: () => get('/moments'),
+  live: () => get('/moments/live'),
+  all: () => get('/moments/all'),
+  create: (b) => post('/moments', b),
+  update: (id, b) => patch(`/moments/${id}`, b),
+  remove: (id) => del(`/moments/${id}`),
 };
 
 export const uploadApi = {

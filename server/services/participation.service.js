@@ -4,6 +4,7 @@ import { randomToken } from '../utils/helpers.js';
 import { awardPoints, revokePoints } from './points.service.js';
 import { markReferralSuccessful } from './referral.service.js';
 import { evaluateBadges } from './badge.service.js';
+import { awardMomentBadges } from './moment.service.js';
 
 /**
  * Shared attendance engine for Events and FDFS. Guarantees:
@@ -99,6 +100,8 @@ export function makeParticipation(cfg) {
     await adjustCounts(itemId, prev, 'ATTENDED');
     await awardPoints(userId, attendReason, { refId: String(itemId), refType: Item.modelName });
     evaluateBadges(userId).catch(() => {});
+    // Turning up while a moment is being celebrated earns that moment's commemorative badge.
+    awardMomentBadges(userId).catch(() => {});
     return { already: false };
   }
 

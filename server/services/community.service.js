@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { City, Country, Event, FanClub, FanClubMember, FDFS, State, User, UserPoints } from '../models/index.js';
+import { City, Country, Event, FanClub, FanClubMember, FDFS, PointsTransaction, State, User, UserPoints } from '../models/index.js';
 import { escapeRegex, isObjectId } from '../utils/helpers.js';
 
 /** Homepage statistics — every number is a live database count. */
@@ -147,4 +147,38 @@ export async function leaderboard({ scope = 'global', id, skip = 0, limit = 50 }
       };
     });
   return { items, total };
+}
+
+/**
+ * City-vs-city race for the current month.
+ *
+ * Deliberately recomputed from PointsTransaction rather than read off UserPoints: those totals are
+ * lifetime, so a city that was busy two years ago would sit at the top forever. Summing only this
+ * month's transactions resets the standings on the 1st and keeps the race worth entering.
+ */
+export async function cityRace({ limit = 8, at } = {}) {
+  const now = at ? new Date(at) : new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+
+  const rows = await PointsTransaction.aggregate([
+    { $match: { createdAt: { $gte: start, $lt: end }, points: { $gt: 0 } } },
+    { $group: { _id: '$user', points: { $sum: '$points' } } },
+    { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'user' } },
+    { $unwind: '$user' },
+    { $match: { 'user.status': 'ACTIVE', 'user.city': { $ne: null } } },
+    { $group: { _id: '$user.city', points: { $sum: '$points' }, srkians: { $sum: 1 } } },
+    { $sort: { points: -1, srkians: -1 } },
+    { $limit: Math.min(Number(limit) || 8, 25) },
+    { $lookup: { from: 'cities', localField: '_id', foreignField: '_id', as: 'city' } },
+    { $unwind: '$city' },
+    { $match: { 'city.status': 'ACTIVE' } },
+    { $project: { _id: 0, points: 1, srkians: 1, city: { _id: '$city._id', name: '$city.name', slug: '$city.slug' } } },
+  ]);
+
+  return {
+    monthStart: start.toISOString(),
+    monthEnd: end.toISOString(),
+    items: rows.map((r, i) => ({ rank: i + 1, ...r })),
+  };
 }

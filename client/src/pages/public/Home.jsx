@@ -13,6 +13,7 @@ import { LocationSelector } from '../../components/common/LocationSelector.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { CardSkeletonGrid, Counter, EmptyState, SectionHeading, Skeleton } from '../../components/ui/Display.jsx';
 import { CityCard, EventCard, FanClubCard, FDFSCard } from '../../components/cards/Cards.jsx';
+import { CityRace, MomentBanner, MovieCountdown } from '../../features/fandom/Fandom.jsx';
 
 function Hero() {
   const s = useSettings();
@@ -85,12 +86,22 @@ function Stats() {
   if (isError) return null;
   return (
     <section aria-label="Platform statistics" className="border-b border-white/5 bg-ink-900/40">
-      <div className="container-page grid grid-cols-2 gap-px py-2 sm:grid-cols-4 lg:grid-cols-7">
+      {/* Phones get a compact icon-beside-number row so seven stats don't stack into a wall of
+          huge numerals; from sm up it returns to the centred column layout. */}
+      <div className="container-page grid grid-cols-2 gap-x-4 gap-y-0.5 py-3 sm:grid-cols-4 sm:gap-px sm:py-2 lg:grid-cols-7">
         {STAT_ITEMS.map(([key, label, Icon]) => (
-          <div key={key} className="flex flex-col items-center px-2 py-5 text-center">
-            <Icon className="mb-2 size-4 text-gold-500" aria-hidden />
-            {isLoading ? <Skeleton className="h-10 w-16" /> : <Counter value={data?.[key] || 0} className="display text-4xl text-fog-100 sm:text-5xl" />}
-            <span className="mt-1 text-[11px] font-semibold tracking-[0.16em] text-fog-400 uppercase">{label}</span>
+          <div key={key} className="flex items-center gap-2.5 py-2 sm:flex-col sm:gap-0 sm:px-2 sm:py-5 sm:text-center">
+            <Icon className="size-4 shrink-0 text-gold-500 sm:mb-2" aria-hidden />
+            <div className="flex min-w-0 flex-col sm:items-center">
+              {isLoading ? (
+                <Skeleton className="h-7 w-12 sm:h-10 sm:w-16" />
+              ) : (
+                <Counter value={data?.[key] || 0} className="display text-2xl leading-none text-fog-100 sm:text-5xl" />
+              )}
+              <span className="mt-0.5 truncate text-[10px] font-semibold tracking-[0.12em] text-fog-400 uppercase sm:mt-1 sm:text-[11px] sm:tracking-[0.16em]">
+                {label}
+              </span>
+            </div>
           </div>
         ))}
       </div>
@@ -172,6 +183,9 @@ export default function Home() {
       />
       <Hero />
       <Stats />
+      {/* Both render nothing unless there is something live, so the page never shows an empty slot. */}
+      <MomentBanner />
+      <MovieCountdown />
       <FindCity />
       <HowItWorks />
 
@@ -225,6 +239,8 @@ export default function Home() {
           <EmptyState icon={UsersRound} title="No verified fan clubs yet" message="Run a fan club? Register it and get verified." action={<Button to="/fan-clubs/register">Register your fan club</Button>} />
         )}
       </section>
+
+      <CityRace />
 
       <section className="container-page pb-16 sm:pb-20">
         <SectionHeading eyebrow="Where SRKians live" title="Popular cities" action={<Button to="/cities" variant="ghost" iconRight={ArrowRight}>All cities</Button>} />

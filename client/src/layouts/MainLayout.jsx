@@ -40,6 +40,7 @@ const NAV = [
   { to: '/fan-clubs', label: 'Fan Clubs' },
   { to: '/events', label: 'Events' },
   { to: '/fdfs', label: 'FDFS' },
+  { to: '/movies', label: 'Films' },
   { to: '/leaderboard', label: 'Leaderboard' },
 ];
 
@@ -274,7 +275,7 @@ function MobileNav() {
 function Footer() {
   const s = useSettings();
   const cols = [
-    { title: 'Explore', links: [['/cities', 'Find your city'], ['/fan-clubs', 'Fan clubs'], ['/events', 'Events'], ['/fdfs', 'FDFS'], ['/leaderboard', 'Leaderboard']] },
+    { title: 'Explore', links: [['/cities', 'Find your city'], ['/fan-clubs', 'Fan clubs'], ['/events', 'Events'], ['/fdfs', 'FDFS'], ['/movies', 'Films'], ['/leaderboard', 'Leaderboard']] },
     { title: 'Community', links: [['/fan-clubs/register', 'Register your fan club'], ['/about', 'About'], ['/community-guidelines', 'Community guidelines'], ['/contact', 'Contact']] },
     { title: 'Legal', links: [['/privacy', 'Privacy policy'], ['/terms', 'Terms'], ['/copyright', 'Copyright policy']] },
   ];

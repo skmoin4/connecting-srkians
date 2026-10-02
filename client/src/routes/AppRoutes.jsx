@@ -18,6 +18,8 @@ const Events = lazy(() => import('../pages/public/Events.jsx'));
 const EventDetail = lazy(() => import('../pages/public/EventDetail.jsx'));
 const Fdfs = lazy(() => import('../pages/public/Fdfs.jsx'));
 const FdfsDetail = lazy(() => import('../pages/public/FdfsDetail.jsx'));
+const Movies = lazy(() => import('../pages/public/Movies.jsx'));
+const MovieDetail = lazy(() => import('../pages/public/Movies.jsx').then((m) => ({ default: m.MovieDetail })));
 const Leaderboard = lazy(() => import('../pages/public/Leaderboard.jsx'));
 const SearchPage = lazy(() => import('../pages/public/Search.jsx'));
 const CheckIn = lazy(() => import('../pages/public/CheckIn.jsx'));
@@ -63,6 +65,8 @@ export default function AppRoutes() {
           <Route path="events/:slug" element={<EventDetail />} />
           <Route path="fdfs" element={<Fdfs />} />
           <Route path="fdfs/:slug" element={<FdfsDetail />} />
+          <Route path="movies" element={<Movies />} />
+          <Route path="movies/:slug" element={<MovieDetail />} />
           <Route path="leaderboard" element={<Leaderboard />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="check-in" element={<CheckIn />} />

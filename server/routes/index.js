@@ -4,6 +4,7 @@ import userRoutes from './user.routes.js';
 import cityRoutes, { countryRoutes, stateRoutes } from './location.routes.js';
 import { fanClubRoutes, fanClubManagerRoutes, networkRoutes } from './fanClub.routes.js';
 import { eventRoutes, fdfsRoutes } from './event.routes.js';
+import { momentRoutes, movieRoutes } from './movie.routes.js';
 import adminRoutes from './admin.routes.js';
 import * as misc from '../controllers/misc.controller.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
@@ -28,6 +29,8 @@ api.use('/fan-club', fanClubManagerRoutes);
 api.use('/network', networkRoutes);
 api.use('/events', eventRoutes);
 api.use('/fdfs', fdfsRoutes);
+api.use('/movies', movieRoutes);
+api.use('/moments', momentRoutes);
 api.use('/admin', adminRoutes);
 
 // Notifications
@@ -52,6 +55,7 @@ api.get('/discover', optionalAuth, misc.discover);
 api.get('/search', misc.search);
 api.get('/search/suggestions', misc.suggestions);
 api.get('/leaderboard', misc.leaderboard);
+api.get('/leaderboard/cities', misc.cityRace);
 api.get('/badges', misc.badges);
 api.get('/settings/public', misc.settings);
 api.post('/referrals/click', writeLimiter, misc.referralClick);

@@ -75,6 +75,9 @@ Request flow: `route → validate(zod) → authenticate → requirePermission �
 | **Announcements** | GLOBAL / COUNTRY / STATE / CITY / FAN_CLUB / EVENT / FDFS targets, each authorised by scope |
 | **Notifications** | In-app centre (unread count, mark read / all read, delete), per-type preferences, real-time delivery over Socket.io, FCM push when configured |
 | **Admin network** | Private directory of verified clubs and admins, plus collaboration requests (PENDING/ACCEPTED/REJECTED/CLOSED) |
+| **Films & countdown** | Admin-managed SRK film catalogue (poster, banner, synopsis, trailer, release date — optional, shown as "To Be Announced"). Homepage countdown to the next dated release, `/movies` directory and per-film page listing every city organising an FDFS. "Invite organisers" notifies every verified club admin once per film; they open their city's FDFS in one click, pre-filled from the film |
+| **Moments** | Recurring fandom dates (2 November, film anniversaries) stored as day/month so they return each year, with a ± day window. A live moment shows a homepage banner; checking in at any event or FDFS while it runs awards its commemorative badge |
+| **City race** | Monthly city-vs-city standings on the homepage and `/leaderboard?board=cities`, summed from **this month's** points transactions only, so the board resets on the 1st |
 | **Points, badges, referrals** | Points only from real participation (idempotent, revoked on cancel). Rule-based badges configurable by admins. Referral codes (`/join?ref=SRK-XXXX`) with abuse limits (no self-referral, per-network cap, daily reward cap, reward only after real participation) |
 | **Leaderboard** | Global / country / state / city / fan club |
 | **Search** | Global debounced search across cities, clubs, events, FDFS and public profiles, plus header suggestions |
@@ -236,5 +239,7 @@ They cover registration (including location-chain validation and duplicate email
 - The frontend is an SPA. Meta tags are set client-side (fine for Google, but some social crawlers won't run JS). Server-side rendering or prerendering is the upgrade path for rich link previews.
 - Browser push needs the Firebase web SDK wiring described above. The server side and the service worker are ready.
 - "Active" fan clubs means clubs with upcoming events/FDFS. Every club in the public directory is verified by design, so no separate "verified" filter is shown.
+- Moment badges use the MANUAL badge rule so the threshold evaluator never awards them; only `awardMomentBadges` does, on confirmed attendance.
+- The city race aggregates points transactions per request. At launch scale this is fine; denormalising a `city` onto `PointsTransaction` is the upgrade path if it gets slow.
 - Background jobs use in-process timers. On multi-instance deployments, run them on one instance (`DISABLE_JOBS=true` on the others).
 - Legal pages are plain-language templates. Have them reviewed before launch.

@@ -52,6 +52,11 @@ export const COLLAB_STATUS = ['PENDING', 'ACCEPTED', 'REJECTED', 'CLOSED'];
 
 export const REFERRAL_STATUS = ['REGISTERED', 'SUCCESSFUL', 'REJECTED'];
 
+export const MOVIE_STATUS = ['ANNOUNCED', 'RELEASED', 'CANCELLED'];
+
+/** A moment is a date the fandom already celebrates — a birthday or a film's anniversary. */
+export const MOMENT_TYPES = ['BIRTHDAY', 'ANNIVERSARY', 'RELEASE', 'CUSTOM'];
+
 export const BADGE_RULES = [
   'JOINED', // awarded on registration
   'CITY_MEMBER', // joined a specific city (rule.city) or any city

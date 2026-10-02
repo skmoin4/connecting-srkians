@@ -35,4 +35,54 @@ export const DEFAULT_BADGES = [
   { code: 'EVENT_STAR', name: 'Event Star', description: 'Attended 3 fan events.', icon: 'star', tier: 'SILVER', rule: { type: 'EVENTS_ATTENDED', threshold: 3 } },
   { code: 'COMMUNITY_BUILDER', name: 'Community Builder', description: 'Brought 5 SRKians into the family.', icon: 'handshake', tier: 'GOLD', rule: { type: 'REFERRALS', threshold: 5 } },
   { code: 'CITY_CHAMPION', name: 'City Champion', description: 'Earned 500 community points.', icon: 'crown', tier: 'GOLD', rule: { type: 'POINTS', threshold: 500 } },
+  // Moment badges use the MANUAL rule so evaluateBadges never hands them out on a threshold —
+  // they are awarded by awardMomentBadges when someone turns up while the moment is live.
+  { code: 'BIRTHDAY_SQUAD', name: 'Birthday Squad', description: 'Celebrated 2 November with your city.', icon: 'cake', tier: 'GOLD', rule: { type: 'MANUAL' } },
+  { code: 'ANNIVERSARY_CLUB', name: 'Anniversary Club', description: 'Showed up for a film anniversary.', icon: 'clapperboard', tier: 'SILVER', rule: { type: 'MANUAL' } },
+];
+
+/**
+ * Dates the fandom already celebrates. Stored as recurring day/month, so they return every year
+ * without re-seeding. `badge` refers to a DEFAULT_BADGES code.
+ */
+export const DEFAULT_MOMENTS = [
+  {
+    code: 'SRK_BIRTHDAY',
+    title: "King Khan's Birthday",
+    subtitle: '2 November',
+    description: 'The day the fandom comes out in full force. Celebrate with your city.',
+    type: 'BIRTHDAY',
+    day: 2,
+    month: 11,
+    sinceYear: 1965,
+    windowDays: 1,
+    icon: 'cake',
+    badge: 'BIRTHDAY_SQUAD',
+  },
+  {
+    code: 'DDLJ_ANNIVERSARY',
+    title: 'DDLJ Anniversary',
+    subtitle: '20 October',
+    description: 'The film that never left the theatre. Mark the day with a screening or meet-up.',
+    type: 'ANNIVERSARY',
+    day: 20,
+    month: 10,
+    sinceYear: 1995,
+    windowDays: 1,
+    icon: 'clapperboard',
+    badge: 'ANNIVERSARY_CLUB',
+  },
+  {
+    code: 'PATHAAN_ANNIVERSARY',
+    title: 'Pathaan Anniversary',
+    subtitle: '25 January',
+    description: 'The comeback that broke every record.',
+    type: 'ANNIVERSARY',
+    day: 25,
+    month: 1,
+    sinceYear: 2023,
+    windowDays: 1,
+    icon: 'clapperboard',
+    badge: 'ANNIVERSARY_CLUB',
+  },
 ];

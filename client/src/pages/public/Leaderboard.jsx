@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Crown, Trophy } from 'lucide-react';
 import { communityApi, fanClubApi, locationApi } from '../../api/endpoints.js';
@@ -8,6 +8,7 @@ import { Seo } from '../../components/common/Seo.jsx';
 import { PageHeader } from '../../components/common/Reveal.jsx';
 import { Select } from '../../components/ui/Form.jsx';
 import { Avatar, EmptyState, ErrorState, LoadingState, Pagination, Tabs } from '../../components/ui/Display.jsx';
+import { CityRaceBoard } from '../../features/fandom/Fandom.jsx';
 import { cn } from '../../utils/format.js';
 
 const HOW = [
@@ -23,6 +24,10 @@ const HOW = [
 
 export default function Leaderboard() {
   const { user } = useAuth();
+  const [params, setParams] = useSearchParams();
+  // `?board=cities` shows the monthly city race instead of the individual board, so the
+  // homepage section can link straight to the full standings.
+  const board = params.get('board') === 'cities' ? 'cities' : 'people';
   const [scope, setScope] = useState('global');
   const [id, setId] = useState('');
   const [page, setPage] = useState(1);
@@ -39,10 +44,10 @@ export default function Leaderboard() {
     fanClub: (clubs.data?.items || []).map((c) => ({ value: c._id, label: c.name })),
   }[scope];
 
-  const board = useQuery({
+  const peopleBoard = useQuery({
     queryKey: ['leaderboard', scope, id, page],
+    enabled: board === 'people' && (scope === 'global' || Boolean(id)),
     queryFn: () => communityApi.leaderboard({ scope, id, page, limit: 25 }),
-    enabled: scope === 'global' || Boolean(id),
     placeholderData: keepPreviousData,
   });
 
@@ -59,6 +64,24 @@ export default function Leaderboard() {
       <PageHeader eyebrow="Leaderboard" title="Top SRKians" subtitle="Points come from real participation — joining clubs, attending events and FDFS. Never from likes or posts." />
       <div className="container-page grid gap-8 py-10 lg:grid-cols-[1fr_300px]">
         <div className="min-w-0">
+          <Tabs
+            className="mb-5"
+            value={board}
+            onChange={(v) => setParams(v === 'cities' ? { board: 'cities' } : {}, { replace: true })}
+            tabs={[
+              { value: 'people', label: 'SRKians' },
+              { value: 'cities', label: 'City race' },
+            ]}
+          />
+          {board === 'cities' ? (
+            <>
+              <p className="mb-4 text-sm text-fog-400">
+                Cities ranked by the points their SRKians earned this month. Lifetime totals don&apos;t count here, so the board resets on the 1st.
+              </p>
+              <CityRaceBoard limit={25} />
+            </>
+          ) : (
+            <>
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Tabs
               value={scope}
@@ -77,16 +100,16 @@ export default function Leaderboard() {
           </div>
           {scope !== 'global' && !id ? (
             <EmptyState icon={Trophy} title={`Pick a ${scope === 'fanClub' ? 'fan club' : scope}`} />
-          ) : board.isLoading ? (
+          ) : peopleBoard.isLoading ? (
             <LoadingState />
-          ) : board.isError ? (
-            <ErrorState error={board.error} onRetry={board.refetch} />
-          ) : board.data.items.length === 0 ? (
+          ) : peopleBoard.isError ? (
+            <ErrorState error={peopleBoard.error} onRetry={peopleBoard.refetch} />
+          ) : peopleBoard.data.items.length === 0 ? (
             <EmptyState icon={Trophy} title="No points earned yet" message="Join a fan club or register for an event to get on the board." />
           ) : (
             <>
               <ol className="card divide-y divide-white/5 overflow-hidden">
-                {board.data.items.map((r) => (
+                {peopleBoard.data.items.map((r) => (
                   <li key={r.rank} className={cn('flex items-center gap-3 px-4 py-3 sm:gap-4', r.user?._id === user?._id && 'bg-gold-500/[0.06]')}>
                     <span className={cn('display w-9 shrink-0 text-center text-3xl', r.rank <= 3 ? 'text-gold-400' : 'text-fog-500')}>
                       {r.rank === 1 ? <Crown className="mx-auto size-6" aria-label="Rank 1" /> : r.rank}
@@ -109,7 +132,9 @@ export default function Leaderboard() {
                   </li>
                 ))}
               </ol>
-              <Pagination pagination={board.data.pagination} onPage={setPage} />
+              <Pagination pagination={peopleBoard.data.pagination} onPage={setPage} />
+            </>
+          )}
             </>
           )}
         </div>

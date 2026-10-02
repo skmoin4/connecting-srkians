@@ -6,7 +6,7 @@ import * as community from '../services/community.service.js';
 import { getSettingsCached, publicSettings } from '../services/settings.service.js';
 import { uploadImageBuffer } from '../services/upload.service.js';
 import { trackReferralClick } from '../services/referral.service.js';
-import { Badge, City, Event, FanClub, FDFS } from '../models/index.js';
+import { Badge, City, Event, FanClub, FDFS, Movie } from '../models/index.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ok, created, paginated } from '../utils/response.js';
 import { parsePagination } from '../utils/helpers.js';
@@ -87,6 +87,7 @@ export const leaderboard = asyncHandler(async (req, res) => {
   const { items, total } = await community.leaderboard({ scope: req.query.scope, id: req.query.id, skip, limit });
   paginated(res, { items, total, page, limit });
 });
+export const cityRace = asyncHandler(async (req, res) => ok(res, await community.cityRace({ limit: req.query.limit })));
 export const badges = asyncHandler(async (_req, res) =>
   ok(res, { items: await Badge.find({ active: true }).select('code name description icon tier rule.type rule.threshold').lean() })
 );
@@ -107,13 +108,14 @@ export const upload = asyncHandler(async (req, res) => {
 // ---------------- SEO: sitemap ----------------
 export const sitemap = asyncHandler(async (_req, res) => {
   const base = env.clientUrl.split(',')[0].replace(/\/$/, '');
-  const [cities, clubs, events, fdfs] = await Promise.all([
+  const [cities, clubs, events, fdfs, movies] = await Promise.all([
     City.find({ status: 'ACTIVE' }).select('slug updatedAt').lean(),
     FanClub.find({ status: 'APPROVED' }).select('slug updatedAt').lean(),
     Event.find({ status: { $in: ['UPCOMING', 'ONGOING', 'COMPLETED'] } }).select('slug updatedAt').limit(5000).lean(),
     FDFS.find({ status: { $in: ['UPCOMING', 'ONGOING', 'COMPLETED'] } }).select('slug updatedAt').limit(5000).lean(),
+    Movie.find({ status: { $ne: 'CANCELLED' } }).select('slug updatedAt').limit(500).lean(),
   ]);
-  const staticPaths = ['/', '/about', '/discover', '/cities', '/fan-clubs', '/events', '/fdfs', '/leaderboard', '/privacy', '/terms', '/community-guidelines', '/copyright', '/contact'];
+  const staticPaths = ['/', '/about', '/discover', '/cities', '/fan-clubs', '/events', '/fdfs', '/movies', '/leaderboard', '/privacy', '/terms', '/community-guidelines', '/copyright', '/contact'];
   const url = (loc, lastmod, priority = '0.6') =>
     `<url><loc>${base}${loc}</loc>${lastmod ? `<lastmod>${new Date(lastmod).toISOString()}</lastmod>` : ''}<priority>${priority}</priority></url>`;
   const xml = [
@@ -124,6 +126,7 @@ export const sitemap = asyncHandler(async (_req, res) => {
     ...clubs.map((c) => url(`/fan-clubs/${c.slug}`, c.updatedAt, '0.8')),
     ...events.map((e) => url(`/events/${e.slug}`, e.updatedAt)),
     ...fdfs.map((f) => url(`/fdfs/${f.slug}`, f.updatedAt, '0.8')),
+    ...movies.map((m) => url(`/movies/${m.slug}`, m.updatedAt, '0.8')),
     '</urlset>',
   ].join('');
   res.type('application/xml').send(xml);

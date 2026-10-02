@@ -5,6 +5,7 @@ import {
   BarChart3,
   CalendarDays,
   Clapperboard,
+  Film,
   Flag,
   Globe,
   LayoutDashboard,
@@ -14,6 +15,7 @@ import {
   ScrollText,
   Settings,
   ShieldCheck,
+  Sparkles,
   Users,
   UsersRound,
 } from 'lucide-react';
@@ -23,6 +25,7 @@ import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import { Seo } from '../../components/common/Seo.jsx';
 import { AdminAnalytics, AdminAuditLogs, AdminDashboard, AdminModerators, AdminUsers } from './AdminOverview.jsx';
 import { AdminAnnouncements, AdminBadges, AdminEvents, AdminFanClubs, AdminLocations, AdminReports, AdminSettings } from './AdminManage.jsx';
+import { AdminMoments, AdminMovies } from './AdminFandom.jsx';
 
 /**
  * Admin & moderator panel. Moderators see a reduced menu; the server additionally scopes every
@@ -46,6 +49,8 @@ export default function AdminPanel() {
     isSuperAdmin && { to: '/admin/cities', label: 'Cities', icon: MapPin },
     isSuperAdmin && { to: '/admin/states', label: 'States', icon: Map },
     isSuperAdmin && { to: '/admin/countries', label: 'Countries', icon: Globe },
+    isSuperAdmin && { to: '/admin/movies', label: 'Films', icon: Film },
+    isSuperAdmin && { to: '/admin/moments', label: 'Moments', icon: Sparkles },
     isSuperAdmin && { to: '/admin/badges', label: 'Badges', icon: Award },
     isSuperAdmin && { to: '/admin/audit-logs', label: 'Audit logs', icon: ScrollText },
     isSuperAdmin && { to: '/admin/settings', label: 'Site settings', icon: Settings },
@@ -71,6 +76,8 @@ export default function AdminPanel() {
           <Route path="cities" element={superOnly(<AdminLocations kind="cities" />)} />
           <Route path="states" element={superOnly(<AdminLocations kind="states" />)} />
           <Route path="countries" element={superOnly(<AdminLocations kind="countries" />)} />
+          <Route path="movies" element={superOnly(<AdminMovies />)} />
+          <Route path="moments" element={superOnly(<AdminMoments />)} />
           <Route path="badges" element={superOnly(<AdminBadges />)} />
           <Route path="audit-logs" element={superOnly(<AdminAuditLogs />)} />
           <Route path="settings" element={superOnly(<AdminSettings />)} />

@@ -32,6 +32,7 @@ export const PERMISSIONS = Object.freeze({
   AUDIT_VIEW: 'audit:view',
   ANALYTICS_VIEW: 'analytics:view',
   BADGE_MANAGE: 'badge:manage',
+  MOVIE_MANAGE: 'movie:manage',
   POINTS_AWARD: 'points:award',
 });
 

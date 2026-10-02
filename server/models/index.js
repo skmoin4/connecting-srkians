@@ -10,6 +10,8 @@ export { AdminContactRequest } from './AdminContactRequest.js';
 export { Event } from './Event.js';
 export { EventAttendee } from './EventAttendee.js';
 export { FDFS } from './FDFS.js';
+export { Movie } from './Movie.js';
+export { Moment } from './Moment.js';
 export { FDFSParticipant } from './FDFSParticipant.js';
 export { Notification } from './Notification.js';
 export { Announcement } from './Announcement.js';

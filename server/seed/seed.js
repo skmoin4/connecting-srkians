@@ -14,6 +14,7 @@ import {
   FanClubApplication,
   FanClubMember,
   FDFS,
+  Moment,
   Permission,
   Role,
   SiteSetting,
@@ -25,7 +26,7 @@ import { PERMISSIONS, ROLE_PERMISSIONS, ROLES } from '../constants/roles.js';
 import { slugify, randomToken } from '../utils/helpers.js';
 import { generateReferralCode } from '../services/referral.service.js';
 import { evaluateBadges } from '../services/badge.service.js';
-import { DEFAULT_BADGES, LAUNCH } from './initial-data.js';
+import { DEFAULT_BADGES, DEFAULT_MOMENTS, LAUNCH } from './initial-data.js';
 
 export const SEED_ACCOUNTS = {
   superAdmin: { email: 'admin@srkians.local', username: 'srkadmin', fullName: 'Platform Admin', password: process.env.SEED_ADMIN_PASSWORD || 'Admin@12345', role: ROLES.SUPER_ADMIN },
@@ -107,6 +108,14 @@ export async function seed({ reset = false } = {}) {
     await Badge.updateOne({ code: b.code }, { $setOnInsert: { ...b, rule } }, { upsert: true });
   }
   log(`${DEFAULT_BADGES.length} badges`);
+
+  // Moments (2 November, film anniversaries) — linked to the MANUAL badges seeded above.
+  for (const m of DEFAULT_MOMENTS) {
+    const { badge: badgeCode, ...rest } = m;
+    const badge = badgeCode ? await Badge.findOne({ code: badgeCode }).select('_id').lean() : null;
+    await Moment.updateOne({ code: m.code }, { $setOnInsert: { ...rest, badge: badge?._id, isDemo: true } }, { upsert: true });
+  }
+  log(`${DEFAULT_MOMENTS.length} moments`);
 
   // Accounts
   const admin = await upsertUser(SEED_ACCOUNTS.superAdmin, loc);
