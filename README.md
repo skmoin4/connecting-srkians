@@ -141,6 +141,12 @@ MongoDB Atlas: create a cluster, add a database user, allow your server's IP, an
 
 ## External services (Cloudinary, SMTP, Firebase)
 
+> **Without Cloudinary, production refuses uploads.** Every image field also accepts a link
+> ("or paste a link"), stored as `provider: 'external'` — useful for branding images committed to
+> `client/public/images/`, which Vercel serves at `https://<domain>/images/<file>`. That covers the
+> hero, social share image and default covers, but not fan club logos or event covers: club admins
+> have nowhere to host their own, so set the `CLOUDINARY_*` variables before launch.
+
 The app runs without any of these. It never pretends a service is connected when it isn't:
 
 - **Cloudinary.** Create a free account and copy the cloud name, API key and secret into `server/.env`. Uploads are validated (MIME type + extension + 5 MB limit + magic-byte sniffing) and stored as `{ url, publicId }`. *Without Cloudinary:* development saves files to `server/uploads/`; production refuses uploads with a clear 503.

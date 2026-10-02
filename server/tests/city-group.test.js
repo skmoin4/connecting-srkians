@@ -91,3 +91,26 @@ describe('City WhatsApp group link', () => {
     assert.equal(res.status, 400);
   });
 });
+
+describe('External image links', () => {
+  it('accepts an image stored as a link instead of an upload', async () => {
+    const url = 'https://example.com/images/nashik-cover.jpg';
+    const res = await request(app)
+      .patch(api(`/admin/cities/${seeded.launchCity._id}`))
+      .set(auth(adminT))
+      .send({ coverImage: { url, provider: 'external' } });
+    assert.equal(res.status, 200, res.body.message);
+
+    const city = await request(app).get(api(`/cities/${seeded.launchCity.slug}`));
+    assert.equal(city.body.data.city.coverImage.url, url);
+    assert.equal(city.body.data.city.coverImage.provider, 'external');
+  });
+
+  it('rejects a link that is not a URL', async () => {
+    const res = await request(app)
+      .patch(api(`/admin/cities/${seeded.launchCity._id}`))
+      .set(auth(adminT))
+      .send({ coverImage: { url: 'nashik.jpg', provider: 'external' } });
+    assert.equal(res.status, 400);
+  });
+});
