@@ -95,8 +95,11 @@ export default function FanClubRegister() {
 
       <form onSubmit={handleSubmit((v) => m.mutate(v))} className="container-page grid gap-8 py-10 lg:grid-cols-[1fr_320px]" noValidate>
         <div className="min-w-0 space-y-8">
-          <fieldset className="card space-y-5 p-5 sm:p-6">
-            <legend className="eyebrow float-left mb-2 w-full">Club identity</legend>
+          <fieldset className="card min-w-0 space-y-5 p-5 sm:p-6" aria-labelledby="fs-identity">
+            {/* A heading, not a <legend>: a floated legend shrank these grids to zero width,
+                and an unfloated one renders inside the card border. aria-labelledby keeps the
+                group named for screen readers. */}
+            <h2 id="fs-identity" className="eyebrow mb-2">Club identity</h2>
             <Input label="Fan club name" required placeholder="e.g. SRK Aryan FC Nashik" error={errors.name?.message} {...register('name')} />
             <Textarea label="Description" required rows={5} placeholder="Who you are, what you do, how long you've been running…" error={errors.description?.message} {...register('description')} />
             <div className="grid gap-5 sm:grid-cols-2">
@@ -105,8 +108,8 @@ export default function FanClubRegister() {
             </div>
           </fieldset>
 
-          <fieldset className="card space-y-5 p-5 sm:p-6">
-            <legend className="eyebrow float-left mb-2 w-full">Location</legend>
+          <fieldset className="card min-w-0 space-y-5 p-5 sm:p-6" aria-labelledby="fs-location">
+            <h2 id="fs-location" className="eyebrow mb-2">Location</h2>
             <LocationSelector
               required
               value={{ country, state, city }}
@@ -115,8 +118,8 @@ export default function FanClubRegister() {
             />
           </fieldset>
 
-          <fieldset className="card space-y-5 p-5 sm:p-6">
-            <legend className="eyebrow float-left mb-2 w-full">Admin & contact</legend>
+          <fieldset className="card min-w-0 space-y-5 p-5 sm:p-6" aria-labelledby="fs-contact">
+            <h2 id="fs-contact" className="eyebrow mb-2">Admin & contact</h2>
             <div className="grid gap-5 sm:grid-cols-2">
               <Input label="Admin name" required error={errors.adminName?.message} {...register('adminName')} />
               <Input label="Admin account" value={`@${user.username}`} disabled hint="The club will be linked to your account" />
@@ -137,8 +140,8 @@ export default function FanClubRegister() {
             </div>
           </fieldset>
 
-          <fieldset className="card space-y-5 p-5 sm:p-6">
-            <legend className="eyebrow float-left mb-2 w-full">Verification & details</legend>
+          <fieldset className="card min-w-0 space-y-5 p-5 sm:p-6" aria-labelledby="fs-verification">
+            <h2 id="fs-verification" className="eyebrow mb-2">Verification & details</h2>
             <div className="grid gap-5 sm:grid-cols-2">
               <Input label="Founded date (optional)" type="date" {...register('foundedDate')} />
               <Input label="Approximate members (optional)" type="number" min="0" {...register('approxMemberCount')} />
