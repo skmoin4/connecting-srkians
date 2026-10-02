@@ -37,6 +37,9 @@ const citySchema = new mongoose.Schema(
     description: { type: String, trim: true, maxlength: 1000 },
     coverImage: imageSchema,
     announcement: { type: String, trim: true, maxlength: 500 },
+    // Shared only with people who have joined the city (see getCityBySlug), so the invite
+    // link can't be scraped from a public page.
+    whatsappGroupLink: { type: String, trim: true, maxlength: 300 },
     // Denormalized counters, maintained by services (never client-set).
     memberCount: { type: Number, default: 0 },
     fanClubCount: { type: Number, default: 0 },

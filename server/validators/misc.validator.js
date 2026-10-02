@@ -64,6 +64,7 @@ export const citySchema = z.object({
   featured: z.boolean().optional(),
   description: optionalString(1000),
   announcement: optionalString(500),
+  whatsappGroupLink: optionalUrl,
   coverImage: imageRef,
 });
 

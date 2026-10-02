@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CalendarDays, Check, Clapperboard, Megaphone, ShieldCheck, UserPlus, Users, UsersRound } from 'lucide-react';
+import { CalendarDays, Check, Clapperboard, Megaphone, MessageCircle, ShieldCheck, UserPlus, Users, UsersRound } from 'lucide-react';
 import { locationApi } from '../../api/endpoints.js';
 import { errorMessage } from '../../api/client.js';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -25,6 +25,7 @@ export default function CityDetail() {
     mutationFn: () => locationApi.join(data.city._id),
     onSuccess: async (_d) => {
       toast.success(`Welcome to ${data.city.name} SRKians!`);
+      if (_d?.whatsappGroupLink) toast.info('The city WhatsApp group link is now on this page.');
       await refreshUser();
       qc.invalidateQueries({ queryKey: ['city'] });
     },
@@ -62,9 +63,17 @@ export default function CityDetail() {
           </Reveal>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             {isMember ? (
-              <Button size="lg" variant="outline" icon={Check} disabled>
-                You're a {city.name} SRKian
-              </Button>
+              <>
+                <Button size="lg" variant="outline" icon={Check} disabled>
+                  You're a {city.name} SRKian
+                </Button>
+                {/* Members only — the link never reaches the public page. */}
+                {city.whatsappGroupLink && (
+                  <Button size="lg" variant="gold" href={city.whatsappGroupLink} icon={MessageCircle}>
+                    Join the {city.name} WhatsApp group
+                  </Button>
+                )}
+              </>
             ) : (
               <Button size="lg" icon={UserPlus} loading={join.isPending} onClick={() => requireAuth() && join.mutate()}>
                 Join {city.name} community
@@ -79,6 +88,9 @@ export default function CityDetail() {
             <ShareButton size="lg" variant="ghost" title={title} text={`Find SRK fan clubs in ${city.name}`} />
           </div>
           {user && !isMember && user.city && <p className="mt-3 text-xs text-fog-500">Joining will change your primary city from {user.city.name}.</p>}
+          {!isMember && city.hasWhatsappGroup && (
+            <p className="mt-3 text-xs text-gold-400">{city.name} has a WhatsApp group — join the community to get the invite link.</p>
+          )}
         </div>
       </header>
 

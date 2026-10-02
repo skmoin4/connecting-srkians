@@ -11,6 +11,7 @@ import {
 } from '../models/index.js';
 import { ApiError } from '../utils/ApiError.js';
 import { escapeRegex, isObjectId, uniqueSlug } from '../utils/helpers.js';
+import { canModerateCity } from '../middleware/rbac.js';
 import { awardPoints, syncPointsLocation } from './points.service.js';
 import { evaluateBadges } from './badge.service.js';
 
@@ -138,8 +139,13 @@ export async function getCityBySlug(slug, viewer) {
   let isMember = false;
   if (viewer) isMember = Boolean(await CityMembership.exists({ user: viewer._id, city: city._id }));
 
+  // The invite link goes to members and city moderators only — a public page would leak it to
+  // anyone, and a WhatsApp invite can't be revoked per person once it is out.
+  const canSeeGroup = isMember || canModerateCity(viewer, city._id);
+  const { whatsappGroupLink, ...publicCity } = city;
+
   return {
-    city,
+    city: { ...publicCity, whatsappGroupLink: canSeeGroup ? whatsappGroupLink : undefined, hasWhatsappGroup: Boolean(whatsappGroupLink) },
     stats: {
       members: city.memberCount,
       fanClubs: verifiedCount,
@@ -166,7 +172,7 @@ export async function joinCity(userId, cityId) {
   const loc = await resolveLocation(cityId);
   const existing = await CityMembership.findOne({ user: userId }).lean();
   if (existing && String(existing.city) === String(loc.city)) {
-    return { alreadyMember: true, city: loc.cityDoc };
+    return { alreadyMember: true, city: loc.cityDoc, whatsappGroupLink: loc.cityDoc.whatsappGroupLink };
   }
   if (existing) {
     await CityMembership.updateOne({ _id: existing._id }, { city: loc.city, joinedAt: new Date() });
@@ -179,7 +185,7 @@ export async function joinCity(userId, cityId) {
   await syncPointsLocation(user);
   await awardPoints(userId, 'JOIN_CITY', { refId: 'first-city', refType: 'City' });
   evaluateBadges(userId).catch(() => {});
-  return { alreadyMember: false, city: loc.cityDoc };
+  return { alreadyMember: false, city: loc.cityDoc, whatsappGroupLink: loc.cityDoc.whatsappGroupLink };
 }
 
 export async function leaveCityMembership(userId) {

@@ -140,14 +140,14 @@ export function AdminFanClubs() {
 const KINDS = {
   countries: { label: 'Country', fields: ['name', 'code'] },
   states: { label: 'State', fields: ['name', 'country'] },
-  cities: { label: 'City', fields: ['name', 'state', 'description', 'announcement', 'coverImage', 'featured'] },
+  cities: { label: 'City', fields: ['name', 'state', 'description', 'announcement', 'whatsappGroupLink', 'coverImage', 'featured'] },
 };
 
 function LocationForm({ kind, item, onClose }) {
   const toast = useToast();
   const qc = useQueryClient();
   const editing = Boolean(item);
-  const [f, setF] = useState({ name: item?.name || '', code: item?.code || '', country: item?.country?._id || '', state: item?.state?._id || '', description: item?.description || '', announcement: item?.announcement || '', coverImage: item?.coverImage || null, featured: item?.featured || false });
+  const [f, setF] = useState({ name: item?.name || '', code: item?.code || '', country: item?.country?._id || '', state: item?.state?._id || '', description: item?.description || '', announcement: item?.announcement || '', whatsappGroupLink: item?.whatsappGroupLink || '', coverImage: item?.coverImage || null, featured: item?.featured || false });
   const countries = useQuery({ queryKey: ['countries'], queryFn: locationApi.countries, enabled: kind !== 'countries' });
   const states = useQuery({ queryKey: ['states', 'all'], queryFn: () => locationApi.states(), enabled: kind === 'cities' });
   const save = useMutation({
@@ -174,6 +174,13 @@ function LocationForm({ kind, item, onClose }) {
             {!editing && <Select label="State" required value={f.state} onChange={set('state')} placeholder="Select" options={(states.data?.states || []).map((s) => ({ value: s._id, label: s.name }))} />}
             <Textarea label="Description" rows={3} value={f.description} onChange={set('description')} />
             <Textarea label="City announcement (pinned on city page)" rows={2} value={f.announcement} onChange={set('announcement')} />
+            <Input
+              label="WhatsApp group invite link"
+              value={f.whatsappGroupLink}
+              onChange={set('whatsappGroupLink')}
+              placeholder="https://chat.whatsapp.com/…"
+              hint="Shown only to people who have joined this city, never on the public page."
+            />
             <ImageUpload label="Cover image" value={f.coverImage} onChange={(v) => setF((s) => ({ ...s, coverImage: v }))} folder="cities" />
             <Switch label="Featured city" checked={f.featured} onChange={(v) => setF((s) => ({ ...s, featured: v }))} />
           </>
