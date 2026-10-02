@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CalendarDays, Check, Clapperboard, Megaphone, MessageCircle, ShieldCheck, UserPlus, Users, UsersRound } from 'lucide-react';
+import { CalendarDays, Check, Clapperboard, Megaphone, MessageCircle, Phone, ShieldCheck, UserPlus, Users, UsersRound } from 'lucide-react';
 import { locationApi } from '../../api/endpoints.js';
 import { errorMessage } from '../../api/client.js';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -11,7 +11,7 @@ import { useRequireAuth, ShareButton } from '../../components/common/Actions.jsx
 import { Button } from '../../components/ui/Button.jsx';
 import { EmptyState, ErrorState, LoadingState, SectionHeading, StatCard } from '../../components/ui/Display.jsx';
 import { AnnouncementBanner, EventCard, FanClubCard, FDFSCard, UserCard } from '../../components/cards/Cards.jsx';
-import { locationLine } from '../../utils/format.js';
+import { locationLine, whatsappUrl } from '../../utils/format.js';
 
 export default function CityDetail() {
   const { slug } = useParams();
@@ -67,10 +67,20 @@ export default function CityDetail() {
                 <Button size="lg" variant="outline" icon={Check} disabled>
                   You're a {city.name} SRKian
                 </Button>
-                {/* Members only — the link never reaches the public page. */}
+                {/* Members only — neither reaches the public page. */}
                 {city.whatsappGroupLink && (
                   <Button size="lg" variant="gold" href={city.whatsappGroupLink} icon={MessageCircle}>
                     Join the {city.name} WhatsApp group
+                  </Button>
+                )}
+                {city.whatsappNumber && (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    href={whatsappUrl(city.whatsappNumber, `Hi! I'm an SRKian from ${city.name}.`)}
+                    icon={Phone}
+                  >
+                    {city.contactName ? `Message ${city.contactName}` : 'Message the city admin'}
                   </Button>
                 )}
               </>
@@ -88,8 +98,14 @@ export default function CityDetail() {
             <ShareButton size="lg" variant="ghost" title={title} text={`Find SRK fan clubs in ${city.name}`} />
           </div>
           {user && !isMember && user.city && <p className="mt-3 text-xs text-fog-500">Joining will change your primary city from {user.city.name}.</p>}
-          {!isMember && city.hasWhatsappGroup && (
-            <p className="mt-3 text-xs text-gold-400">{city.name} has a WhatsApp group — join the community to get the invite link.</p>
+          {!isMember && (city.hasWhatsappGroup || city.hasCityContact) && (
+            <p className="mt-3 text-xs text-gold-400">
+              {city.hasWhatsappGroup && city.hasCityContact
+                ? `${city.name} has a WhatsApp group and an admin contact — join the community to get both.`
+                : city.hasWhatsappGroup
+                  ? `${city.name} has a WhatsApp group — join the community to get the invite link.`
+                  : `${city.name} has an admin you can message — join the community to get the number.`}
+            </p>
           )}
         </div>
       </header>

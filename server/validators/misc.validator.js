@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ANNOUNCEMENT_TARGETS, BADGE_RULES, REPORT_REASONS, REPORT_STATUS, REPORT_TARGETS } from '../constants/enums.js';
 import { ASSIGNABLE_ROLES } from '../constants/roles.js';
-import { imageRef, objectId, optionalDate, optionalObjectId, optionalString, optionalUrl } from './common.js';
+import { imageRef, objectId, optionalDate, optionalObjectId, optionalString, optionalUrl, phone } from './common.js';
 
 export const announcementSchema = z
   .object({
@@ -65,6 +65,8 @@ export const citySchema = z.object({
   description: optionalString(1000),
   announcement: optionalString(500),
   whatsappGroupLink: optionalUrl,
+  whatsappNumber: phone,
+  contactName: optionalString(60),
   coverImage: imageRef,
 });
 

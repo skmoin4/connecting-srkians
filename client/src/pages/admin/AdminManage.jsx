@@ -140,14 +140,14 @@ export function AdminFanClubs() {
 const KINDS = {
   countries: { label: 'Country', fields: ['name', 'code'] },
   states: { label: 'State', fields: ['name', 'country'] },
-  cities: { label: 'City', fields: ['name', 'state', 'description', 'announcement', 'whatsappGroupLink', 'coverImage', 'featured'] },
+  cities: { label: 'City', fields: ['name', 'state', 'description', 'announcement', 'whatsappGroupLink', 'whatsappNumber', 'contactName', 'coverImage', 'featured'] },
 };
 
 function LocationForm({ kind, item, onClose }) {
   const toast = useToast();
   const qc = useQueryClient();
   const editing = Boolean(item);
-  const [f, setF] = useState({ name: item?.name || '', code: item?.code || '', country: item?.country?._id || '', state: item?.state?._id || '', description: item?.description || '', announcement: item?.announcement || '', whatsappGroupLink: item?.whatsappGroupLink || '', coverImage: item?.coverImage || null, featured: item?.featured || false });
+  const [f, setF] = useState({ name: item?.name || '', code: item?.code || '', country: item?.country?._id || '', state: item?.state?._id || '', description: item?.description || '', announcement: item?.announcement || '', whatsappGroupLink: item?.whatsappGroupLink || '', whatsappNumber: item?.whatsappNumber || '', contactName: item?.contactName || '', coverImage: item?.coverImage || null, featured: item?.featured || false });
   const countries = useQuery({ queryKey: ['countries'], queryFn: locationApi.countries, enabled: kind !== 'countries' });
   const states = useQuery({ queryKey: ['states', 'all'], queryFn: () => locationApi.states(), enabled: kind === 'cities' });
   const save = useMutation({
@@ -181,6 +181,16 @@ function LocationForm({ kind, item, onClose }) {
               placeholder="https://chat.whatsapp.com/…"
               hint="Shown only to people who have joined this city, never on the public page."
             />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input
+                label="City WhatsApp number"
+                value={f.whatsappNumber}
+                onChange={set('whatsappNumber')}
+                placeholder="9876543210"
+                hint="A number the city runs — not a moderator's personal phone."
+              />
+              <Input label="Contact name" value={f.contactName} onChange={set('contactName')} placeholder="Nashik SRKians desk" />
+            </div>
             <ImageUpload label="Cover image" value={f.coverImage} onChange={(v) => setF((s) => ({ ...s, coverImage: v }))} folder="cities" />
             <Switch label="Featured city" checked={f.featured} onChange={(v) => setF((s) => ({ ...s, featured: v }))} />
           </>

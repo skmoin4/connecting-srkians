@@ -11,12 +11,14 @@ let memberT;
 
 const api = (p) => `/api/v1${p}`;
 const LINK = 'https://chat.whatsapp.com/TestInviteCode123';
+const NUMBER = '9123456780';
+const CONTACT = 'Nashik SRKians desk';
 
 before(async () => {
   ({ app, seeded, accounts } = await setup());
   adminT = (await login(app, accounts.superAdmin.email, accounts.superAdmin.password)).token;
 
-  await request(app).patch(api(`/admin/cities/${seeded.launchCity._id}`)).set(auth(adminT)).send({ whatsappGroupLink: LINK });
+  await request(app).patch(api(`/admin/cities/${seeded.launchCity._id}`)).set(auth(adminT)).send({ whatsappGroupLink: LINK, whatsappNumber: NUMBER, contactName: CONTACT });
 
   const reg = await request(app).post(api('/auth/register')).send({
     fullName: 'Group Tester',
@@ -37,7 +39,11 @@ describe('City WhatsApp group link', () => {
     assert.equal(res.status, 200);
     assert.equal(res.body.data.city.whatsappGroupLink, undefined, 'guests must not receive the invite link');
     assert.equal(res.body.data.city.hasWhatsappGroup, true);
-    assert.ok(!JSON.stringify(res.body).includes('TestInviteCode123'), 'the link must not appear anywhere in the response');
+    assert.equal(res.body.data.city.whatsappNumber, undefined, 'guests must not receive the contact number');
+    assert.equal(res.body.data.city.hasCityContact, true);
+    const body = JSON.stringify(res.body);
+    assert.ok(!body.includes('TestInviteCode123'), 'the link must not appear anywhere in the response');
+    assert.ok(!body.includes(NUMBER), 'the number must not appear anywhere in the response');
   });
 
   it('is hidden from a signed-in user who has not joined the city', async () => {
@@ -54,6 +60,7 @@ describe('City WhatsApp group link', () => {
     const res = await request(app).get(api(`/cities/${seeded.launchCity.slug}`)).set(auth(other.body.data.accessToken));
     if (res.body.data.isMember) return; // registration joined them; covered by the next test
     assert.equal(res.body.data.city.whatsappGroupLink, undefined);
+    assert.equal(res.body.data.city.whatsappNumber, undefined);
   });
 
   it('is returned once the user joins the city', async () => {
@@ -64,6 +71,8 @@ describe('City WhatsApp group link', () => {
     const res = await request(app).get(api(`/cities/${seeded.launchCity.slug}`)).set(auth(memberT));
     assert.equal(res.body.data.isMember, true);
     assert.equal(res.body.data.city.whatsappGroupLink, LINK);
+    assert.equal(res.body.data.city.whatsappNumber, NUMBER);
+    assert.equal(res.body.data.city.contactName, CONTACT);
   });
 
   it('is visible to a moderator of that city', async () => {
@@ -74,6 +83,11 @@ describe('City WhatsApp group link', () => {
 
   it('rejects a non-URL invite link', async () => {
     const res = await request(app).patch(api(`/admin/cities/${seeded.launchCity._id}`)).set(auth(adminT)).send({ whatsappGroupLink: 'not-a-link' });
+    assert.equal(res.status, 400);
+  });
+
+  it('rejects a malformed contact number', async () => {
+    const res = await request(app).patch(api(`/admin/cities/${seeded.launchCity._id}`)).set(auth(adminT)).send({ whatsappNumber: 'call-me' });
     assert.equal(res.status, 400);
   });
 });
