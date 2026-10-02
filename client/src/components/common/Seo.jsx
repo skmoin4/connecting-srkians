@@ -12,7 +12,9 @@ export function Seo({ title, description, image, type = 'website', jsonLd, noind
   const fullTitle = title ? template.replace('%s', title) : settings.seo?.defaultTitle || `${settings.platformName} — ${settings.tagline}`;
   const desc = description || settings.seo?.defaultDescription || settings.description;
   const canonical = `${SITE_URL}${pathname}`;
-  const ogImage = image || settings.seo?.ogImage?.url;
+  // Images we host ourselves are stored as same-origin paths; social crawlers need absolute URLs.
+  const rawImage = image || settings.seo?.ogImage?.url;
+  const ogImage = rawImage?.startsWith('/') ? `${SITE_URL}${rawImage}` : rawImage;
 
   return (
     <>

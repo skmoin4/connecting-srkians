@@ -37,13 +37,13 @@ describe('Uploads without an object store', () => {
 
     assert.equal(res.status, 201, res.body.message);
     image = res.body.data.image;
-    assert.ok(image.url.includes('/api/v1/uploads/'), `unexpected url: ${image.url}`);
+    // Relative, so the URL keeps working when the deployment domain changes.
+    assert.match(image.url, /^\/api\/v1\/uploads\/[a-f0-9]{24}$/, `unexpected url: ${image.url}`);
     assert.equal(image.provider, 'db');
   });
 
   it('serves the stored image back to anyone, cached hard', async () => {
-    const id = image.publicId;
-    const res = await request(app).get(api(`/uploads/${id}`));
+    const res = await request(app).get(image.url);
     assert.equal(res.status, 200);
     assert.equal(res.headers['content-type'], 'image/png');
     assert.match(res.headers['cache-control'], /immutable/);
@@ -61,6 +61,13 @@ describe('Uploads without an object store', () => {
       .set(auth(token))
       .attach('image', Buffer.from('<?php echo 1; ?>'), { filename: 'evil.png', contentType: 'image/png' });
     assert.equal(res.status, 400);
+  });
+
+  it('accepts the stored image back when a form saves it', async () => {
+    const club = await request(app).get(api('/fan-clubs')).query({ limit: 1 });
+    const id = club.body.data.items[0]._id;
+    const res = await request(app).patch(api(`/fan-clubs/${id}`)).set(auth(token)).send({ logo: image });
+    assert.equal(res.status, 200, res.body.message);
   });
 
   it('requires a signed-in user', async () => {

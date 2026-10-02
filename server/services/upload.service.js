@@ -59,7 +59,9 @@ export async function uploadImageBuffer(file, folder = 'misc', uploadedBy) {
       folder,
       uploadedBy: uploadedBy || undefined,
     });
-    return { url: `${env.serverUrl}/api/v1/uploads/${doc._id}`, publicId: String(doc._id), provider: 'db' };
+    // Relative on purpose: the SPA and this API share an origin, so hardcoding a host would
+    // break every stored image the moment the deployment URL changes.
+    return { url: `/api/v1/uploads/${doc._id}`, publicId: String(doc._id), provider: 'db' };
   }
 
   const dir = path.join(LOCAL_UPLOAD_DIR, folder);

@@ -55,7 +55,12 @@ export const bool = z.preprocess((v) => (v === 'true' ? true : v === 'false' ? f
 
 export const imageRef = z
   .object({
-    url: z.string().trim().max(500).refine((v) => /^https?:\/\//.test(v), 'Invalid image URL'),
+    // Absolute for hosted images; a same-origin /api/v1/uploads/<id> path for ones we store.
+    url: z
+      .string()
+      .trim()
+      .max(500)
+      .refine((v) => /^https?:\/\//.test(v) || /^\/api\/v1\/uploads\/[a-f0-9]{24}$/.test(v), 'Invalid image URL'),
     publicId: z.string().trim().max(300).optional(),
     provider: z.enum(['cloudinary', 'local', 'external', 'db']).optional(),
   })
